@@ -52,7 +52,7 @@ function App() {
 
     return (
         <div>
-            <h1>dApp with React</h1>
+            <h1>Dapp_4_ERC20_Token_Transfer</h1>
             {account ? (
                 <p>
                     Account:{" "}
