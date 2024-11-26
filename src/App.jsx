@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import DummyToken from "./components/dummyToken";
 import { provider } from "./web3";
+import { Button, Box, Typography, CircularProgress } from "@mui/material";
 
 const Balance = ({ account }) => {
     const [balance, setBalance] = useState("");
@@ -12,12 +13,21 @@ const Balance = ({ account }) => {
             return ethers.utils.formatEther(balance);
         };
         getBalance().then(setBalance).catch(console.error);
-    }, [account, provider]);
+    }, [account]);
 
     if (!balance) {
-        return <p>Loading...</p>;
+        return (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <CircularProgress size={20} />
+                <Typography>Loading balance...</Typography>
+            </Box>
+        );
     }
-    return <p>Balance: {balance} tETH</p>;
+    return (
+        <Typography variant="body1" sx={{ mt: 2 }}>
+            Balance: <strong>{balance}</strong> tETH
+        </Typography>
+    );
 };
 
 function App() {
@@ -30,7 +40,7 @@ function App() {
         const [account] = await window.ethereum.request({
             method: "eth_accounts",
         });
-        window.ethereum.on("accountsChanged", accounts => {
+        window.ethereum.on("accountsChanged", (accounts) => {
             setAccount(accounts[0]);
         });
         return account;
@@ -51,25 +61,34 @@ function App() {
     }, []);
 
     return (
-        <div>
-            <h1>Dapp_4_ERC20_Token_Transfer</h1>
+        <Box sx={{ p: 3, textAlign: "center" }}>
+            <Typography variant="h4" sx={{ mb: 3 }}>
+                Dapp for ERC-20 Token Transfer
+            </Typography>
+
             {account ? (
-                <p>
-                    Account:{" "}
-                    <code style={{ display: "inline" }}>{account}</code>
-                </p>
+                <Typography variant="body1" sx={{ mb: 2 }}>
+                    Account: <code>{account}</code>
+                </Typography>
             ) : (
-                <button onClick={() => requestAccounts()}>
+                <Button
+                    variant="contained"
+                    color="success"
+                    size="large"
+                    onClick={requestAccounts}
+                    sx={{ mb: 3 }}
+                >
                     Request Accounts
-                </button>
+                </Button>
             )}
+
             {provider && account && (
-                <>
+                <Box sx={{ mt: 4 }}>
                     <Balance account={account} />
                     <DummyToken account={account} />
-                </>
+                </Box>
             )}
-        </div>
+        </Box>
     );
 }
 
