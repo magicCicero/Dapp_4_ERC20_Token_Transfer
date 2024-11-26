@@ -16,6 +16,10 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@emotion/react": "^11.13.5",
+        "@emotion/styled": "^11.13.5",
+        "@mui/icons-material": "^6.1.8",
+        "@mui/material": "^6.1.8",
         "Dapp_4_ERC20_Token_Transfer": "file:",
         "dapp-4-ERC20_token_transfer": "file:",
         "dapp-with-react": "file:",
