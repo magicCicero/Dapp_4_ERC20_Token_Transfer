@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import DummyToken from "./components/dummyToken";
+import CiceroToken from "./components/ciceroToken";
 import { provider } from "./web3";
 import { Button, Box, Typography, CircularProgress } from "@mui/material";
 
@@ -68,7 +68,7 @@ function App() {
 
             {account ? (
                 <Typography variant="h6" sx={{ mb: 2 }}>
-                    Account: &nbsp; <code >{account}</code>
+                    Account: &nbsp; <code>{account}</code>
                 </Typography>
             ) : (
                 <Button
@@ -85,7 +85,7 @@ function App() {
             {provider && account && (
                 <Box sx={{ mt: 4 }}>
                     <Balance account={account} />
-                    <DummyToken account={account} />
+                    <CiceroToken account={account} />
                 </Box>
             )}
         </Box>
