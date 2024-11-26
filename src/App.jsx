@@ -24,7 +24,7 @@ const Balance = ({ account }) => {
         );
     }
     return (
-        <Typography variant="body1" sx={{ mt: 2 }}>
+        <Typography variant="h6" sx={{ mt: 2 }}>
             Balance: <strong>{balance}</strong> tETH
         </Typography>
     );
@@ -62,13 +62,13 @@ function App() {
 
     return (
         <Box sx={{ p: 3, textAlign: "center", mt: 15 }}>
-            <Typography variant="h4" sx={{ mb: 3 }}>
+            <Typography variant="h3" sx={{ mb: 3 }}>
                 Dapp for ERC-20 Token Transfer
             </Typography>
 
             {account ? (
-                <Typography variant="body1" sx={{ mb: 2 }}>
-                    Account: <code>{account}</code>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                    Account: &nbsp; <code >{account}</code>
                 </Typography>
             ) : (
                 <Button
