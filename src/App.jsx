@@ -61,7 +61,7 @@ function App() {
     }, []);
 
     return (
-        <Box sx={{ p: 3, textAlign: "center", mt: 5 }}>
+        <Box sx={{ p: 3, textAlign: "center", mt: 15 }}>
             <Typography variant="h4" sx={{ mb: 3 }}>
                 Dapp for ERC-20 Token Transfer
             </Typography>
