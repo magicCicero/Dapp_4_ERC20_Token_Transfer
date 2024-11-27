@@ -1,8 +1,7 @@
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { CICERO_TOKEN, CICERO_TOKEN_ADDRESS, provider } from "../web3";
-import { Box, Typography, Button, TextField, CircularProgress,
-} from "@mui/material";
+import { Box, Typography, Button, TextField, CircularProgress, Snackbar, Alert} from "@mui/material";
 
 const getBalanceAndClaimed = async (account) => {
   const ciceroToken = CICERO_TOKEN.connect(provider);
@@ -14,6 +13,7 @@ const getBalanceAndClaimed = async (account) => {
 
 const addCiceroTokenToMetaMask = async () => {
   if (!window.ethereum) {
+    setTransferStatus({ success: false, message: "MetaMask is not available." });
     return false;
   }
   try {
@@ -28,8 +28,10 @@ const addCiceroTokenToMetaMask = async () => {
         },
       },
     });
+    setTransferStatus({ success: true, message: "Cicero Token added to MetaMask!" });
   } catch (error) {
     console.error(error);
+    setTransferStatus({ success: false, message: "Failed to add token to MetaMask." });
   }
 };
 
@@ -38,6 +40,9 @@ const CiceroToken = ({ account }) => {
   const [receiverAddress, setReceiverAddress] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const isAddressValid = (address) => ethers.utils.isAddress(address);
+  const [transferStatus, setTransferStatus] = useState({ success: null, message: "" });
 
   const transferToken = async () => {
     try {
@@ -52,10 +57,12 @@ const CiceroToken = ({ account }) => {
 
       const [updatedBalance] = await getBalanceAndClaimed(account);
       setBalance(updatedBalance);
+      setTransferStatus({ success: true, message: "Transfer successful!" });
       setReceiverAddress("");
       setTokenAmount("");
     } catch (error) {
       console.error(error);
+      setTransferStatus({ success: false, message: "Transfer failed. Check the console for details." });
     } finally {
       setLoading(false);
     }
@@ -118,10 +125,13 @@ const CiceroToken = ({ account }) => {
           variant="filled"
           value={receiverAddress}
           onChange={(e) => setReceiverAddress(e.target.value)}
-          sx={{ 
-            mb: 2,
-         }}
+          sx={{ mb: 2 }}
         />
+        {!isAddressValid(receiverAddress) && receiverAddress && (
+          <Typography color="error" sx={{ mb:2, mt:-1 }}>
+            Invalid Ethereum address
+          </Typography>
+        )}
         <TextField
           fullWidth
           label="Amount"
@@ -131,17 +141,31 @@ const CiceroToken = ({ account }) => {
           onChange={(e) => setTokenAmount(e.target.value)}
           sx={{ mb: 3 }}
         />
+
         <Button
           variant="contained"
           color="success"
           size="large"
-          fullWidth
           onClick={transferToken}
-          disabled={loading || !receiverAddress || !tokenAmount}
-        >
+          disabled={loading || !receiverAddress || !isAddressValid(receiverAddress) || !tokenAmount || parseFloat(tokenAmount) <= 0
+          }
+          >
           {loading ? <CircularProgress size={24} color="inherit" /> : "Transfer"}
         </Button>
       </Box>
+      <Snackbar
+        open={transferStatus.message !== ""}
+        autoHideDuration={4000}
+        onClose={() => setTransferStatus({ success: null, message: "" })}
+      >
+        <Alert
+          onClose={() => setTransferStatus({ success: null, message: "" })}
+          severity={transferStatus.success ? "success" : "error"}
+        >
+          {transferStatus.message}
+        </Alert>
+      </Snackbar>
+
     </Box>
   );
 };
