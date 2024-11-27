@@ -68,6 +68,8 @@ const CiceroToken = ({ account }) => {
   };
 
   const transferToken = async () => {
+    setShowModal(false);
+
     try {
       setLoading(true);
       const signer = provider.getSigner();
@@ -89,7 +91,6 @@ const CiceroToken = ({ account }) => {
       setTransferStatus({ success: false, message: "Transfer failed. Check the console for details." });
     } finally {
       setLoading(false);
-      setShowModal(false);
     }
   };
 
