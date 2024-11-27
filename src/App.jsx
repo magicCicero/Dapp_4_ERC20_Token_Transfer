@@ -1,7 +1,8 @@
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import DummyToken from "./components/dummyToken";
-import { provider } from "./web3";
+import CiceroToken from "./components/ciceroToken";
+import { provider } from "./utils.js/web3";
+import { Button, Box, Typography, CircularProgress } from "@mui/material";
 
 const Balance = ({ account }) => {
     const [balance, setBalance] = useState("");
@@ -12,16 +13,26 @@ const Balance = ({ account }) => {
             return ethers.utils.formatEther(balance);
         };
         getBalance().then(setBalance).catch(console.error);
-    }, [account, provider]);
+    }, [account]);
 
     if (!balance) {
-        return <p>Loading...</p>;
+        return (
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
+                <CircularProgress size={20} />
+                <Typography>Loading balance...</Typography>
+            </Box>
+        );
     }
-    return <p>Balance: {balance} tETH</p>;
+    return (
+        <Typography variant="h6" sx={{ mt: 2 }}>
+            Balance: <strong>{balance}</strong> tETH
+        </Typography>
+    );
 };
 
 function App() {
     const [account, setAccount] = useState(null);
+    const [hasMetaMask, setHasMetaMask] = useState(true);
 
     const checkAccounts = async () => {
         if (!window.ethereum) {
@@ -30,46 +41,108 @@ function App() {
         const [account] = await window.ethereum.request({
             method: "eth_accounts",
         });
-        window.ethereum.on("accountsChanged", accounts => {
-            setAccount(accounts[0]);
-        });
+        if (account) {
+            window.ethereum.on("accountsChanged", (accounts) => {
+                if (accounts.length === 0) {
+                    setAccount(null);
+                    localStorage.removeItem("connectedAccount");
+                } else {
+                    setAccount(accounts[0]);
+                    localStorage.setItem("connectedAccount", accounts[0]);
+                }
+            });
+            localStorage.setItem("connectedAccount", account);
+        }
         return account;
     };
 
     const requestAccounts = async () => {
         if (!window.ethereum) {
+            setHasMetaMask(false);
             return null;
         }
-        const [account] = await window.ethereum.request({
-            method: "eth_requestAccounts",
-        });
-        return account;
+        try {
+            const [account] = await window.ethereum.request({
+                method: "eth_requestAccounts",
+            });
+            setAccount(account);
+            localStorage.setItem("connectedAccount", account); 
+            return account;
+        } catch (error) {
+            console.error("Failed to connect wallet:", error);
+            alert("Could not connect to wallet. Please try again.");
+            return null;
+        }
+    };
+
+    const disconnectWallet = () => {
+        setAccount(null); // Clear the account state
+        localStorage.removeItem("connectedAccount"); // Remove saved account from localStorage
+        alert("Wallet disconnected.");
     };
 
     useEffect(() => {
-        checkAccounts().then(setAccount).catch(console.error);
+        const initialize = async () => {
+            const savedAccount = localStorage.getItem("connectedAccount");
+    
+            if (savedAccount) {
+                const accounts = await window.ethereum.request({ method: "eth_accounts" });
+                if (accounts.length === 0) {
+                    localStorage.removeItem("connectedAccount");
+                    setAccount(null);
+                } else {
+                    setAccount(savedAccount);
+                }
+            }
+        };
+        initialize().catch(console.error);
     }, []);
+    
 
     return (
-        <div>
-            <h1>Dapp_4_ERC20_Token_Transfer</h1>
+        <Box sx={{ p: 3, textAlign: "center", mt: 5 }}>
+            <Typography variant="h3" sx={{ mb: 3 }}>
+                Dapp for ERC-20 Token Transfer
+            </Typography>
+
             {account ? (
-                <p>
-                    Account:{" "}
-                    <code style={{ display: "inline" }}>{account}</code>
-                </p>
-            ) : (
-                <button onClick={() => requestAccounts()}>
-                    Request Accounts
-                </button>
-            )}
-            {provider && account && (
                 <>
-                    <Balance account={account} />
-                    <DummyToken account={account} />
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                        Account: &nbsp; <code>{account}</code>
+                    </Typography>
+                    <Button 
+                        variant="contained"
+                        color="warning"
+                        size="small"
+                        onClick={disconnectWallet}
+                        sx={{ mt: 2 }}
+                    >
+                        Disconnect Wallet
+                    </Button>
                 </>
+            ) : (<Box>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        size="large"
+                        onClick={requestAccounts}
+                        sx={{ mb: 3, display: hasMetaMask ? "inline-box" : "none" }}
+                    >
+                        Connect Wallet
+                    </Button>
+                    <Typography sx={{ display: hasMetaMask ? "none" : "block", color: "red" }}>
+                        Please install MetaMask to connect your wallet and try again...
+                    </Typography>
+                </Box>
             )}
-        </div>
+
+            {provider && account && (
+                <Box sx={{ mt: 4 }}>
+                    <Balance account={account} />
+                    <CiceroToken account={account} />
+                </Box>
+            )}
+        </Box>
     );
 }
 
