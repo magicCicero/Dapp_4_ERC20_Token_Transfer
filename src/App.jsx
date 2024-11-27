@@ -77,17 +77,27 @@ function App() {
 
     const disconnectWallet = () => {
         setAccount(null); // Clear the account state
+        localStorage.removeItem("connectedAccount"); // Remove saved account from localStorage
         alert("Wallet disconnected.");
     };
 
     useEffect(() => {
-        const savedAccount = localStorage.getItem("connectedAccount");
-        if (savedAccount) {
-            setAccount(savedAccount);
-        } else {
-            checkAccounts().then(setAccount).catch(console.error);
-        }
+        const initialize = async () => {
+            const savedAccount = localStorage.getItem("connectedAccount");
+    
+            if (savedAccount) {
+                const accounts = await window.ethereum.request({ method: "eth_accounts" });
+                if (accounts.length === 0) {
+                    localStorage.removeItem("connectedAccount");
+                    setAccount(null);
+                } else {
+                    setAccount(savedAccount);
+                }
+            }
+        };
+        initialize().catch(console.error);
     }, []);
+    
 
     return (
         <Box sx={{ p: 3, textAlign: "center", mt: 5 }}>

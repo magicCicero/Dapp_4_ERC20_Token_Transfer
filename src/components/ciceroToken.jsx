@@ -186,7 +186,7 @@ const CiceroToken = ({ account }) => {
           {loading ? <CircularProgress size={24} color="inherit" /> : "Transfer"}
         </Button>
       </Box>
-      {/* Modal for Gas Fee Confirmation */}
+
       <Dialog open={showModal} onClose={() => setShowModal(false)}>
         <DialogTitle sx={{ color: "#000" }} >Confirm Transfer</DialogTitle>
         <DialogContent>
@@ -217,6 +217,7 @@ const CiceroToken = ({ account }) => {
           </Button>
         </DialogActions>
       </Dialog>
+
       <Snackbar
         open={transferStatus.message !== ""}
         autoHideDuration={4000}
