@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import CiceroToken from "./components/ciceroToken";
-import { provider } from "./utils.js/web3";
+import { provider } from "./utils/web3";
 import { Button, Box, Typography, CircularProgress } from "@mui/material";
 
 const Balance = ({ account }) => {

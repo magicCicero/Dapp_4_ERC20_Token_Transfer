@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import { CICERO_TOKEN, CICERO_TOKEN_ADDRESS, provider } from "../utils.js/web3";
+import { CICERO_TOKEN, CICERO_TOKEN_ADDRESS, provider } from "../utils/web3";
 import { Box, Typography, Button, TextField, CircularProgress, Snackbar, Alert, Dialog,
   DialogTitle, DialogContent, DialogActions,} from "@mui/material";
 
