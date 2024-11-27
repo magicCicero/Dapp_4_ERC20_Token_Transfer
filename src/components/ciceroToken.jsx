@@ -189,7 +189,7 @@ const CiceroToken = ({ account }) => {
       <Dialog open={showModal} onClose={() => setShowModal(false)}>
         <DialogTitle sx={{ color: "#000" }} >Confirm Transfer</DialogTitle>
         <DialogContent>
-          <Typography>
+          <Typography sx={{ mb: 3 }}>
             Estimated Gas Fee: <strong style={{ color: "#000" }}>{gasFee} ETH</strong>
           </Typography>
           <Typography>
