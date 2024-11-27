@@ -35,9 +35,6 @@ abi: compile
 deploy_token: compile
     npx hardhat run --network $HARDHAT_NETWORK scripts/deployToken.js
 
-deploy_staking reward: compile
-    node scripts/deployStaking.js $VITE_DUMMY_TOKEN_ADDRESS {{ reward }}
-
 clean:
     npx hardhat clean
     rm -rf dist cache

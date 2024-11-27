@@ -17,7 +17,7 @@ const Balance = ({ account }) => {
 
     if (!balance) {
         return (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
                 <CircularProgress size={20} />
                 <Typography>Loading balance...</Typography>
             </Box>
@@ -32,6 +32,7 @@ const Balance = ({ account }) => {
 
 function App() {
     const [account, setAccount] = useState(null);
+    const [hasMetaMask, setHasMetaMask] = useState(true);
 
     const checkAccounts = async () => {
         if (!window.ethereum) {
@@ -48,6 +49,7 @@ function App() {
 
     const requestAccounts = async () => {
         if (!window.ethereum) {
+            setHasMetaMask(false);
             return null;
         }
         const [account] = await window.ethereum.request({
@@ -70,16 +72,20 @@ function App() {
                 <Typography variant="h6" sx={{ mb: 2 }}>
                     Account: &nbsp; <code>{account}</code>
                 </Typography>
-            ) : (
-                <Button
-                    variant="contained"
-                    color="success"
-                    size="large"
-                    onClick={requestAccounts}
-                    sx={{ mb: 3 }}
-                >
-                    Request Accounts
-                </Button>
+            ) : (<Box>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        size="large"
+                        onClick={requestAccounts}
+                        sx={{ mb: 3, display: hasMetaMask ? "inline-box" : "none" }}
+                    >
+                        Request Accounts
+                    </Button>
+                    <Typography sx={{ display: hasMetaMask ? "none" : "block", color: "red" }}>
+                        Please install MetaMask and try again...
+                    </Typography>
+                </Box>
             )}
 
             {provider && account && (

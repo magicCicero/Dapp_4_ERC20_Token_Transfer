@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import { DUMMY_TOKEN, DUMMY_TOKEN_ADDRESS, provider } from "../web3";
+import { CICERO_TOKEN, CICERO_TOKEN_ADDRESS, provider } from "../web3";
 import {
   Box,
   Typography,
@@ -10,14 +10,14 @@ import {
 } from "@mui/material";
 
 const getBalanceAndClaimed = async (account) => {
-  const dummyToken = DUMMY_TOKEN.connect(provider);
+  const ciceroToken = CICERO_TOKEN.connect(provider);
   const [balance] = await Promise.all([
-    dummyToken.balanceOf(account),
+    ciceroToken.balanceOf(account),
   ]);
   return [ethers.utils.formatEther(balance)];
 };
 
-const addDummyTokenToMetaMask = async () => {
+const addCiceroTokenToMetaMask = async () => {
   if (!window.ethereum) {
     return false;
   }
@@ -27,7 +27,7 @@ const addDummyTokenToMetaMask = async () => {
       params: {
         type: "ERC20",
         options: {
-          address: DUMMY_TOKEN_ADDRESS,
+          address: CICERO_TOKEN_ADDRESS,
           symbol: "CSTK",
           decimals: 18,
         },
@@ -38,7 +38,7 @@ const addDummyTokenToMetaMask = async () => {
   }
 };
 
-const DummyToken = ({ account }) => {
+const CiceroToken = ({ account }) => {
   const [balance, setBalance] = useState("");
   const [receiverAddress, setReceiverAddress] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
@@ -48,8 +48,8 @@ const DummyToken = ({ account }) => {
     try {
       setLoading(true);
       const signer = provider.getSigner();
-      const dummyToken = DUMMY_TOKEN.connect(signer);
-      const tx = await dummyToken.transfer(
+      const ciceroToken = CICERO_TOKEN.connect(signer);
+      const tx = await ciceroToken.transfer(
         receiverAddress,
         ethers.utils.parseEther(tokenAmount)
       );
@@ -78,7 +78,7 @@ const DummyToken = ({ account }) => {
     return (
       <Box sx={{ textAlign: "center", mt: 4 }}>
         <Typography variant="h4" gutterBottom>
-          Dummy Token
+          Cicero Token
         </Typography>
         <CircularProgress />
         <Typography sx={{ mt: 2 }}>Loading balance...</Typography>
@@ -98,7 +98,7 @@ const DummyToken = ({ account }) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={addDummyTokenToMetaMask}
+          onClick={addCiceroTokenToMetaMask}
         >
           Add to MetaMask
         </Button>
@@ -108,7 +108,7 @@ const DummyToken = ({ account }) => {
         sx={{
           p: 3,
           borderRadius: 2,
-          boxShadow: 10,
+          boxShadow: "0px 4px 18px 3px rgb(0 0 0)",
           backgroundColor: "background.paper",
           maxWidth: "400px",
           margin: "0 auto",
@@ -151,4 +151,4 @@ const DummyToken = ({ account }) => {
   );
 };
 
-export default DummyToken;
+export default CiceroToken;
