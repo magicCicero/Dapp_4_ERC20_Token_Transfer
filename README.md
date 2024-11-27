@@ -68,10 +68,24 @@ Follow these steps to run the project locally:
 
 3. Start the application:
    ```bash
-   npm start
+   npm run dev
 
 4. Open your browser and navigate to:
   http://localhost:5173/
 
 ### **How to Use**
 
+1. **Connect Wallet**:
+   - Open the application and click **"Connect Wallet"**.
+   - Ensure your wallet is connected to the **Sepolia Testnet**.
+
+2. **View Balances**:
+   - After connecting, you can view your ETH balance and CSTK token balance.
+
+3. **Send Tokens**:
+   - Enter the recipient's Ethereum address and the token amount.
+   - Click **"Transfer"**.
+   - Review the estimated gas fee in the confirmation modal and confirm the transaction.
+
+4. **Disconnect Wallet**:
+   - Click **"Disconnect Wallet"** to log out and clear your wallet session.
