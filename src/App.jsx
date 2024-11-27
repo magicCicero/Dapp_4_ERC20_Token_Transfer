@@ -73,6 +73,11 @@ function App() {
         }
     };
 
+    const disconnectWallet = () => {
+        setAccount(null); // Clear the account state
+        alert("Wallet disconnected.");
+    };
+
     useEffect(() => {
         const savedAccount = localStorage.getItem("connectedAccount");
         if (savedAccount) {
@@ -88,10 +93,15 @@ function App() {
                 Dapp for ERC-20 Token Transfer
             </Typography>
 
-            {account ? (
+            {account ? (<>
                 <Typography variant="h6" sx={{ mb: 2 }}>
                     Account: &nbsp; <code>{account}</code>
                 </Typography>
+                <Button variant="contained"
+                        color="warning"
+                        size="small"
+                        onClick={disconnectWallet}>Disconnect Wallet</Button>
+                </>
             ) : (<Box>
                     <Button
                         variant="contained"
