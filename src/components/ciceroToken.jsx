@@ -1,12 +1,7 @@
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { CICERO_TOKEN, CICERO_TOKEN_ADDRESS, provider } from "../web3";
-import {
-  Box,
-  Typography,
-  Button,
-  TextField,
-  CircularProgress,
+import { Box, Typography, Button, TextField, CircularProgress,
 } from "@mui/material";
 
 const getBalanceAndClaimed = async (account) => {

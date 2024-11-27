@@ -41,9 +41,18 @@ function App() {
         const [account] = await window.ethereum.request({
             method: "eth_accounts",
         });
-        window.ethereum.on("accountsChanged", (accounts) => {
-            setAccount(accounts[0]);
-        });
+        if (account) {
+            window.ethereum.on("accountsChanged", (accounts) => {
+                if (accounts.length === 0) {
+                    setAccount(null);
+                    localStorage.removeItem("connectedAccount");
+                } else {
+                    setAccount(accounts[0]);
+                    localStorage.setItem("connectedAccount", accounts[0]);
+                }
+            });
+            localStorage.setItem("connectedAccount", account);
+        }
         return account;
     };
 
@@ -52,14 +61,25 @@ function App() {
             setHasMetaMask(false);
             return null;
         }
-        const [account] = await window.ethereum.request({
-            method: "eth_requestAccounts",
-        });
-        return account;
+        try {
+            const [account] = await window.ethereum.request({
+                method: "eth_requestAccounts",
+            });
+            return account;
+        } catch (error) {
+            console.error("Failed to connect wallet:", error);
+            alert("Could not connect to wallet. Please try again.");
+            return null;
+        }
     };
 
     useEffect(() => {
-        checkAccounts().then(setAccount).catch(console.error);
+        const savedAccount = localStorage.getItem("connectedAccount");
+        if (savedAccount) {
+            setAccount(savedAccount);
+        } else {
+            checkAccounts().then(setAccount).catch(console.error);
+        }
     }, []);
 
     return (
@@ -80,10 +100,10 @@ function App() {
                         onClick={requestAccounts}
                         sx={{ mb: 3, display: hasMetaMask ? "inline-box" : "none" }}
                     >
-                        Request Accounts
+                        Connect Wallet
                     </Button>
                     <Typography sx={{ display: hasMetaMask ? "none" : "block", color: "red" }}>
-                        Please install MetaMask and try again...
+                        Please install MetaMask to connect your wallet and try again...
                     </Typography>
                 </Box>
             )}
