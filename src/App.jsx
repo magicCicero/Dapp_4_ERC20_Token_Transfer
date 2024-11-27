@@ -34,28 +34,6 @@ function App() {
     const [account, setAccount] = useState(null);
     const [hasMetaMask, setHasMetaMask] = useState(true);
 
-    const checkAccounts = async () => {
-        if (!window.ethereum) {
-            return null;
-        }
-        const [account] = await window.ethereum.request({
-            method: "eth_accounts",
-        });
-        if (account) {
-            window.ethereum.on("accountsChanged", (accounts) => {
-                if (accounts.length === 0) {
-                    setAccount(null);
-                    localStorage.removeItem("connectedAccount");
-                } else {
-                    setAccount(accounts[0]);
-                    localStorage.setItem("connectedAccount", accounts[0]);
-                }
-            });
-            localStorage.setItem("connectedAccount", account);
-        }
-        return account;
-    };
-
     const requestAccounts = async () => {
         if (!window.ethereum) {
             setHasMetaMask(false);
@@ -97,7 +75,6 @@ function App() {
         };
         initialize().catch(console.error);
     }, []);
-    
 
     return (
         <Box sx={{ p: 3, textAlign: "center", mt: 5 }}>
