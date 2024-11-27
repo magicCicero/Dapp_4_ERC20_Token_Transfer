@@ -1,54 +1,78 @@
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { CICERO_TOKEN, CICERO_TOKEN_ADDRESS, provider } from "../web3";
-import { Box, Typography, Button, TextField, CircularProgress, Snackbar, Alert} from "@mui/material";
-
-const getBalanceAndClaimed = async (account) => {
-  const ciceroToken = CICERO_TOKEN.connect(provider);
-  const [balance] = await Promise.all([
-    ciceroToken.balanceOf(account),
-  ]);
-  return [ethers.utils.formatEther(balance)];
-};
-
-const addCiceroTokenToMetaMask = async () => {
-  if (!window.ethereum) {
-    setTransferStatus({ success: false, message: "MetaMask is not available." });
-    return false;
-  }
-  try {
-    await window.ethereum.request({
-      method: "wallet_watchAsset",
-      params: {
-        type: "ERC20",
-        options: {
-          address: CICERO_TOKEN_ADDRESS,
-          symbol: "CSTK",
-          decimals: 18,
-        },
-      },
-    });
-    setTransferStatus({ success: true, message: "Cicero Token added to MetaMask!" });
-  } catch (error) {
-    console.error(error);
-    setTransferStatus({ success: false, message: "Failed to add token to MetaMask." });
-  }
-};
+import { Box, Typography, Button, TextField, CircularProgress, Snackbar, Alert, Dialog,
+  DialogTitle, DialogContent, DialogActions,} from "@mui/material";
 
 const CiceroToken = ({ account }) => {
   const [balance, setBalance] = useState("");
   const [receiverAddress, setReceiverAddress] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
   const [loading, setLoading] = useState(false);
+  const [transferStatus, setTransferStatus] = useState({ success: null, message: "" });
+  const [gasFee, setGasFee] = useState(null); 
+  const [showModal, setShowModal] = useState(false); 
 
   const isAddressValid = (address) => ethers.utils.isAddress(address);
-  const [transferStatus, setTransferStatus] = useState({ success: null, message: "" });
+
+  const getBalanceAndClaimed = async (account) => {
+    const ciceroToken = CICERO_TOKEN.connect(provider);
+    const [balance] = await Promise.all([
+      ciceroToken.balanceOf(account),
+    ]);
+    return [ethers.utils.formatEther(balance)];
+  };
+
+  const addCiceroTokenToMetaMask = async () => {
+    if (!window.ethereum) {
+      setTransferStatus({ success: false, message: "MetaMask is not available." });
+      return false;
+    }
+    try {
+      await window.ethereum.request({
+        method: "wallet_watchAsset",
+        params: {
+          type: "ERC20",
+          options: {
+            address: CICERO_TOKEN_ADDRESS,
+            symbol: "CSTK",
+            decimals: 18,
+          },
+        },
+      });
+      setTransferStatus({ success: true, message: "Cicero Token added to MetaMask!" });
+    } catch (error) {
+      console.error(error);
+      setTransferStatus({ success: false, message: "Failed to add token to MetaMask." });
+    }
+  };
+
+  const estimateGasFee = async () => {
+    try {
+      const signer = provider.getSigner();
+      const ciceroToken = CICERO_TOKEN.connect(signer);
+
+      const gasEstimate = await ciceroToken.estimateGas.transfer(
+        receiverAddress,
+        ethers.utils.parseEther(tokenAmount)
+      );
+
+      const gasPrice = await provider.getGasPrice();
+      const gasFee = gasEstimate.mul(gasPrice);
+      setGasFee(ethers.utils.formatEther(gasFee));
+      setShowModal(true); 
+    } catch (error) {
+      console.error("Gas estimation failed:", error);
+      setTransferStatus({ success: false, message: "Failed to estimate gas fee." });
+    }
+  };
 
   const transferToken = async () => {
     try {
       setLoading(true);
       const signer = provider.getSigner();
       const ciceroToken = CICERO_TOKEN.connect(signer);
+
       const tx = await ciceroToken.transfer(
         receiverAddress,
         ethers.utils.parseEther(tokenAmount)
@@ -65,15 +89,23 @@ const CiceroToken = ({ account }) => {
       setTransferStatus({ success: false, message: "Transfer failed. Check the console for details." });
     } finally {
       setLoading(false);
+      setShowModal(false);
     }
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     getBalanceAndClaimed(account)
       .then(([balance]) => {
+        if (isMounted) setBalance(balance);
         setBalance(balance);
       })
       .catch(console.error);
+      
+      return () => {
+        isMounted = false; // Cleanup
+      };
   }, [account]);
 
   if (!balance) {
@@ -146,13 +178,44 @@ const CiceroToken = ({ account }) => {
           variant="contained"
           color="success"
           size="large"
-          onClick={transferToken}
+          onClick={estimateGasFee}
           disabled={loading || !receiverAddress || !isAddressValid(receiverAddress) || !tokenAmount || parseFloat(tokenAmount) <= 0
           }
           >
           {loading ? <CircularProgress size={24} color="inherit" /> : "Transfer"}
         </Button>
       </Box>
+      {/* Modal for Gas Fee Confirmation */}
+      <Dialog open={showModal} onClose={() => setShowModal(false)}>
+        <DialogTitle sx={{ color: "#000" }} >Confirm Transfer</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Estimated Gas Fee: <strong style={{ color: "#000" }}>{gasFee} ETH</strong>
+          </Typography>
+          <Typography>
+            Receiver: <strong style={{ color: "#000" }}>{receiverAddress}</strong>
+          </Typography>
+          <Typography>
+            Amount: <strong style={{ color: "#000" }}>{tokenAmount} CSTK</strong>
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => setShowModal(false)} // Close modal without transferring
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={transferToken} // Proceed with the transfer
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Snackbar
         open={transferStatus.message !== ""}
         autoHideDuration={4000}

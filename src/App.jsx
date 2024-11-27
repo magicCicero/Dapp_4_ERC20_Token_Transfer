@@ -65,6 +65,8 @@ function App() {
             const [account] = await window.ethereum.request({
                 method: "eth_requestAccounts",
             });
+            setAccount(account);
+            localStorage.setItem("connectedAccount", account); 
             return account;
         } catch (error) {
             console.error("Failed to connect wallet:", error);
