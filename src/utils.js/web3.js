@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import CiceroTokenABI from "../abi/dummyToken.abi.json";
+import CiceroTokenABI from "../../abi/dummyToken.abi.json";
 
 function getWeb3Provider() {
     if (window.ethereum) {

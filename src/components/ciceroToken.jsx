@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import { CICERO_TOKEN, CICERO_TOKEN_ADDRESS, provider } from "../web3";
+import { CICERO_TOKEN, CICERO_TOKEN_ADDRESS, provider } from "../utils.js/web3";
 import { Box, Typography, Button, TextField, CircularProgress, Snackbar, Alert, Dialog,
   DialogTitle, DialogContent, DialogActions,} from "@mui/material";
 
@@ -47,11 +47,14 @@ const CiceroToken = ({ account }) => {
     }
   };
 
+  const getCiceroTokenWithSigner = () => {
+    const signer = provider.getSigner();
+    return CICERO_TOKEN.connect(signer);
+  };
+  
   const estimateGasFee = async () => {
     try {
-      const signer = provider.getSigner();
-      const ciceroToken = CICERO_TOKEN.connect(signer);
-
+      const ciceroToken = getCiceroTokenWithSigner();
       const gasEstimate = await ciceroToken.estimateGas.transfer(
         receiverAddress,
         ethers.utils.parseEther(tokenAmount)
@@ -72,9 +75,7 @@ const CiceroToken = ({ account }) => {
 
     try {
       setLoading(true);
-      const signer = provider.getSigner();
-      const ciceroToken = CICERO_TOKEN.connect(signer);
-
+      const ciceroToken = getCiceroTokenWithSigner();
       const tx = await ciceroToken.transfer(
         receiverAddress,
         ethers.utils.parseEther(tokenAmount)
@@ -100,7 +101,6 @@ const CiceroToken = ({ account }) => {
     getBalanceAndClaimed(account)
       .then(([balance]) => {
         if (isMounted) setBalance(balance);
-        setBalance(balance);
       })
       .catch(console.error);
       
@@ -191,7 +191,7 @@ const CiceroToken = ({ account }) => {
         <DialogTitle sx={{ color: "#000" }} >Confirm Transfer</DialogTitle>
         <DialogContent>
           <Typography sx={{ mb: 3 }}>
-            Estimated Gas Fee: <strong style={{ color: "#000" }}>{gasFee} ETH</strong>
+            Estimated Gas Fee (in ETH): <strong style={{ color: "#000" }}>{gasFee} ETH</strong>
           </Typography>
           <Typography>
             Receiver: <strong style={{ color: "#000" }}>{receiverAddress}</strong>

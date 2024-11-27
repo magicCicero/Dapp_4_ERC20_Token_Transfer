@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import CiceroToken from "./components/ciceroToken";
-import { provider } from "./web3";
+import { provider } from "./utils.js/web3";
 import { Button, Box, Typography, CircularProgress } from "@mui/material";
 
 const Balance = ({ account }) => {
@@ -105,14 +105,20 @@ function App() {
                 Dapp for ERC-20 Token Transfer
             </Typography>
 
-            {account ? (<>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                    Account: &nbsp; <code>{account}</code>
-                </Typography>
-                <Button variant="contained"
+            {account ? (
+                <>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                        Account: &nbsp; <code>{account}</code>
+                    </Typography>
+                    <Button 
+                        variant="contained"
                         color="warning"
                         size="small"
-                        onClick={disconnectWallet}>Disconnect Wallet</Button>
+                        onClick={disconnectWallet}
+                        sx={{ mt: 2 }}
+                    >
+                        Disconnect Wallet
+                    </Button>
                 </>
             ) : (<Box>
                     <Button
